@@ -4,13 +4,12 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
 	compatibilityDate: "2025-07-15",
 	devtools: { enabled: true },
-  css: ["~/assets/css/main.css"],
+	css: ["~/assets/css/main.css"],
 	vite: {
 		plugins: [tailwindcss() as any],
 	},
 
-	modules: ["@pinia/nuxt", "@vueuse/nuxt"],
-
+	modules: ["@pinia/nuxt", "@vueuse/nuxt", "nuxt-auth-utils"],
 
 	runtimeConfig: {
 		mongoUri: "",
