@@ -1,8 +1,8 @@
 import Tenant from "../../models/Tenant";
-import { requireUserSession } from "../../utils/session";
+import { requireAuth } from "../../utils/session";
 
 export default defineEventHandler(async (event) => {
-	const user = await requireUserSession(event);
+	const user = await requireAuth(event);
 	const id = getRouterParam(event, "id");
 
 	if (!id) {
