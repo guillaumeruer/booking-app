@@ -1,11 +1,12 @@
 import Tenant from "../../models/Tenant";
+import { requireUserSession } from "../../utils/session";
 
 export default defineEventHandler(async (event) => {
-	const session = await getUserSession(event);
+	const user = await requireUserSession(event);
 
 	if (
-		session.user.role !== "manager" &&
-		session.user.role !== "super_admin"
+		user.role !== "manager" &&
+		user.role !== "super_admin"
 	) {
 		throw createError({ statusCode: 403, message: "Forbidden" });
 	}
@@ -26,7 +27,7 @@ export default defineEventHandler(async (event) => {
 	}
 
 	const tenant = await Tenant.create({
-		ownerId: session.user.id,
+		ownerId: user.id,
 		name,
 		category,
 		bookingType,

@@ -1,7 +1,8 @@
 import Tenant from "../../models/Tenant";
+import { requireUserSession } from "../../utils/session";
 
 export default defineEventHandler(async (event) => {
-	const session = await getUserSession(event);
+	const user = await requireUserSession(event);
 	const id = getRouterParam(event, "id");
 
 	if (!id) {
@@ -15,8 +16,8 @@ export default defineEventHandler(async (event) => {
 	}
 
 	if (
-		tenant.ownerId.toString() !== session.user.id &&
-		session.user.role !== "super_admin"
+		tenant.ownerId.toString() !== user.id &&
+		user.role !== "super_admin"
 	) {
 		throw createError({ statusCode: 403, message: "Forbidden" });
 	}
