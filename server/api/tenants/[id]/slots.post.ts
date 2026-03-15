@@ -1,5 +1,6 @@
 import Slot from "../../../models/Slot";
 import Tenant from "../../../models/Tenant";
+import Resource from "../../../models/Resource";
 import { requireAuth } from "../../../utils/session";
 
 export default defineEventHandler(async (event) => {
@@ -30,6 +31,19 @@ export default defineEventHandler(async (event) => {
 		throw createError({
 			statusCode: 400,
 			message: "All fields are required",
+		});
+	}
+
+	const resource = await Resource.findById(resourceId);
+
+	if (!resource) {
+		throw createError({ statusCode: 404, message: "Resource not found" });
+	}
+
+	if (capacity > resource.capacity) {
+		throw createError({
+			statusCode: 400,
+			message: `Capacity cannot exceed resource capacity (${resource.capacity})`,
 		});
 	}
 
