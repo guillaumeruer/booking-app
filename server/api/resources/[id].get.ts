@@ -3,18 +3,19 @@ import { requireAuth } from "../../utils/session";
 
 export default defineEventHandler(async (event) => {
 	const user = await requireAuth(event);
-	const tenantId = getRouterParam(event, "tenantId");
+	const id = getRouterParam(event, "id");
 
-	if (!tenantId) {
+	if (!id) {
 		throw createError({
 			statusCode: 400,
 			message: "Tenant id is required",
 		});
 	}
 
-	const resources = await Resource.find({ tenantId, isActive: true }).sort({
-		name: 1,
-	});
+	const resources = await Resource.find({
+		tenantId: id,
+		isActive: true,
+	}).sort({ name: 1 });
 
 	return { resources };
 });

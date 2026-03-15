@@ -72,6 +72,37 @@
                 </div>
             </div>
 
+            <!-- Resources -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-lg font-bold text-gray-900">Resources</h2>
+                    <button
+                        class="bg-gradient-to-r from-primary-500 to-secondary-500 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition"
+                        @click="showResourceForm = true">
+                        + Add resource
+                    </button>
+                </div>
+
+                <div v-if="resources.length === 0" class="text-center py-8 text-gray-400">
+                    No resources yet. Add your first resource!
+                </div>
+
+                <div v-else class="space-y-3">
+                    <div v-for="resource in resources" :key="resource._id"
+                        class="flex items-center justify-between p-4 rounded-lg border border-gray-100 hover:bg-gray-50 transition">
+                        <div>
+                            <p class="font-medium text-gray-900">{{ resource.name }}</p>
+                            <p class="text-sm text-gray-500 capitalize">{{ resource.type }} — capacity: {{
+                                resource.capacity }}</p>
+                        </div>
+                        <button class="text-red-400 hover:text-red-600 text-sm transition"
+                            @click="deleteResource(resource._id)">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Bookings -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <h2 class="text-lg font-bold text-gray-900 mb-6">Recent bookings</h2>
@@ -147,6 +178,46 @@
                 </form>
             </div>
         </div>
+
+        <!-- Add resource modal -->
+        <div v-if="showResourceForm" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            @click.self="showResourceForm = false">
+            <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+                <h3 class="text-lg font-bold text-gray-900 mb-6">Add a resource</h3>
+                <form class="space-y-4" @submit.prevent="handleAddResource">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                        <input v-model="resourceForm.name" type="text" required
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
+                            placeholder="John, Room A..." />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                        <select v-model="resourceForm.type"
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                            <option value="provider">Provider (hairdresser, doctor...)</option>
+                            <option value="room">Room (cinema, event...)</option>
+                        </select>
+                    </div>
+                    <div v-if="resourceForm.type === 'room'">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Capacity</label>
+                        <input v-model="resourceForm.capacity" type="number" min="1" required
+                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition" />
+                    </div>
+                    <div class="flex gap-3 pt-2">
+                        <button type="button"
+                            class="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition"
+                            @click="showResourceForm = false">
+                            Cancel
+                        </button>
+                        <button type="submit" :disabled="resourceLoading"
+                            class="flex-1 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold py-2.5 rounded-lg hover:opacity-90 transition disabled:opacity-50">
+                            {{ resourceLoading ? 'Adding...' : 'Add resource' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -171,6 +242,15 @@ const slotForm = reactive({
     resourceId: '',
     startAt: '',
     endAt: '',
+    capacity: 1
+})
+
+const showResourceForm = ref(false)
+const resourceLoading = ref(false)
+
+const resourceForm = reactive({
+    name: '',
+    type: 'provider',
     capacity: 1
 })
 
@@ -214,6 +294,32 @@ async function deleteSlot(slotId: string) {
     if (!confirm('Delete this slot?')) return
     try {
         await $fetch(`/api/slots/${slotId}`, { method: 'DELETE' })
+        await fetchData()
+    } catch (e) {
+        console.error(e)
+    }
+}
+
+async function handleAddResource() {
+    resourceLoading.value = true
+    try {
+        await $fetch('/api/resources', {
+            method: 'POST',
+            body: { ...resourceForm, tenantId }
+        })
+        showResourceForm.value = false
+        await fetchData()
+    } catch (e) {
+        console.error(e)
+    } finally {
+        resourceLoading.value = false
+    }
+}
+
+async function deleteResource(resourceId: string) {
+    if (!confirm('Delete this resource?')) return
+    try {
+        await $fetch(`/api/resources/${resourceId}`, { method: 'DELETE' })
         await fetchData()
     } catch (e) {
         console.error(e)
