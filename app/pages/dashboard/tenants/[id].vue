@@ -287,6 +287,7 @@ async function handleAddSlot() {
         console.error(e)
     } finally {
         slotLoading.value = false
+        resetSlotForm()
     }
 }
 
@@ -313,6 +314,7 @@ async function handleAddResource() {
         console.error(e)
     } finally {
         resourceLoading.value = false
+        resetResourceForm()
     }
 }
 
@@ -334,6 +336,19 @@ function formatDate(date: string) {
         hour: '2-digit',
         minute: '2-digit'
     })
+}
+
+function resetSlotForm() {
+  slotForm.resourceId = ''
+  slotForm.startAt = ''
+  slotForm.endAt = ''
+  slotForm.capacity = 1
+}
+
+function resetResourceForm() {
+  resourceForm.name = ''
+  resourceForm.type = 'provider'
+  resourceForm.capacity = 1
 }
 
 onMounted(fetchData)
