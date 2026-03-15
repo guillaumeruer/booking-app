@@ -49,15 +49,14 @@ const form = reactive({
 const loading = ref(false)
 const error = ref('')
 
+const authStore = useAuthStore()
+
 async function handleSubmit() {
     loading.value = true
     error.value = ''
 
     try {
-        await $fetch('/api/auth/login', {
-            method: 'POST',
-            body: form
-        })
+        await authStore.login(form.email, form.password)
         await navigateTo('/dashboard')
     } catch (e: any) {
         error.value = e.data?.message || 'An error occurred'

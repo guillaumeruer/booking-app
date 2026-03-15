@@ -6,7 +6,8 @@
                 BookEase
             </span>
             <div class="flex items-center gap-4">
-                <span class="text-sm text-gray-600">{{ user?.firstName }} {{ user?.lastName }}</span>
+                <span class="text-sm text-gray-600">{{ authStore.user?.firstName }} {{ authStore.user?.lastName
+                    }}</span>
                 <button class="text-sm text-red-500 hover:underline" @click="handleLogout">
                     Sign out
                 </button>
@@ -19,10 +20,10 @@
 </template>
 
 <script setup lang="ts">
-const { user, clear } = useUserSession()
+const authStore = useAuthStore()
 
 async function handleLogout() {
-    await clear()
+    await authStore.logout()
     await navigateTo('/auth/login')
 }
 </script>
